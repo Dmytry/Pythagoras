@@ -1,0 +1,6 @@
+[submodule "submodules/klipper"]
+	path = submodules/klipper
+	url = https://github.com/Dmytry/klipper
+[submodule "submodules/BIGTREETECH-OCTOPUS-V1.0"]
+	path = submodules/BIGTREETECH-OCTOPUS-V1.0
+	url = https://github.com/bigtreetech/BIGTREETECH-OCTOPUS-V1.0.git
