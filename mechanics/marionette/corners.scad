@@ -113,7 +113,7 @@ module OUT_winch(){
 }
 
 /*
-module OUT_corner(){
+module _OUT_corner(){
     motor_h=glass_t + t + upper_winch_l + motor_bump_h;
     
     translate([-winch_offset, -winch_offset, 0])up(motor_h-motor_bump_h)OUT_winch();//%cylinder(winch_l, r=winch_r);
