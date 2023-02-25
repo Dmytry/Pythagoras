@@ -1,4 +1,6 @@
 // (C) 2023 Dmytry Lavrov.
+// Common dimensions for Marionette configuration
+
 glass_w=316;
 glass_h=316;
 glass_t=3.9;

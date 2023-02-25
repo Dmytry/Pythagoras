@@ -1,6 +1,7 @@
 // (C) 2023 Dmytry Lavrov.
+// Tensioning assembly, balanced version
 
-use <../../common/common.scad>
+use <../common/common.scad>
 include <dimensions.scad>
 $fa=3;
 $fs=0.2;

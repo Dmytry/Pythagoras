@@ -1,5 +1,6 @@
 // (C) 2023 Dmytry Lavrov.
-use <../../common/common.scad>
+// Proof of concept for Marionette, not part of the printer
+use <../common/common.scad>
 
 $fa=3;
 $fs=0.2;

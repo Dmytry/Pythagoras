@@ -1,5 +1,7 @@
 // (C) 2023 Dmytry Lavrov.
-use <../../common/common.scad>
+// Corner and edge pieces, winches
+
+use <../common/common.scad>
 include <dimensions.scad>
 $fa=3;
 $fs=0.2;
