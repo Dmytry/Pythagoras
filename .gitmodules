@@ -4,3 +4,6 @@
 [submodule "submodules/BIGTREETECH-OCTOPUS-V1.0"]
 	path = submodules/BIGTREETECH-OCTOPUS-V1.0
 	url = https://github.com/bigtreetech/BIGTREETECH-OCTOPUS-V1.0.git
+[submodule "mechanics/BOSL2"]
+	path = mechanics/BOSL2
+	url = https://github.com/revarbat/BOSL2.git
