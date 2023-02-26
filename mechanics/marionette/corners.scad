@@ -21,6 +21,7 @@ lip_h=2;
 cable_clearance=1;
 
 bearing_lip=0.5;
+eps=1E-3;
 
 lower_winch_l=winch_turns*cable_r + lip+cable_clearance;
 upper_winch_l=winch_l-lower_winch_l-mid_winch_l;
@@ -28,6 +29,20 @@ winching_height=upper_winch_l-t-glass_t/2;
 
 echo("Winching height:", winching_height);
 echo("Downforce:", 4*cable_tension*winching_height/norm([glass_w-movement_margin*2, glass_h-movement_margin*2]));
+
+
+supports=true;
+
+support_t=0.3;
+
+module support_cone(h, r1, r2){
+    if(supports){
+        difference(){
+            cylinder(h, r1=r1, r2=r2);
+            cylinder(h, r1=r1-support_t, r2=r2-support_t);
+        }
+    }
+}
 
 
 module at_motor_corners(i=0){
@@ -220,6 +235,10 @@ OUT_corner_bearings();
 translate([0,-50,0])OUT_winch();
 
 module OUT_side_grabber(){
+    screw_r=1.55;
+    nut_r=3.3;
+    nut_h=2.3;
+    head_r=3;
     difference(){
         union(){
             hull(){
@@ -227,12 +246,27 @@ module OUT_side_grabber(){
                 box([idler_screw_r+0.5, -grab_l/2, 0], [idler_screw_r+0.5+grab_w+t, grab_l/2, 2*t+glass_t]);
             }
             up(2*t+glass_t)cylinder(lower_winch_l/2 - idler_h/2, r1=idler_screw_r+1+lower_winch_l/2 - idler_h/2, r2=idler_screw_r+1);
+            
+            // adjustment screw setup
+            //y_mirror()
+            {
+                hull(){
+                    translate([idler_screw_r+0.5+t, grab_l/2, -head_r])rotate([90,0,0])cylinder(nut_h+2*t, r=nut_r+1);
+                    box([idler_screw_r+0.5, grab_l/2-(nut_h+2* t), 0], [idler_screw_r+0.5+grab_w+t, grab_l/2, 2*t+glass_t]);
+                }
+            }
         }
         cylinder(large, r=idler_screw_r, center=true);
         
-        y_mirror(){
+        //y_mirror()
+        {
             translate([idler_screw_r+t-1, 3-grab_l/2, 0])cylinder(large, r=0.9, center=true);
             translate([idler_screw_r+t-1, 6-grab_l/2, 0])cylinder(large, r=0.9, center=true);
+        }
+        
+        translate([idler_screw_r+0.5+t, grab_l/2+eps, -head_r])rotate([90,0,0]){
+            cylinder(nut_h+2*t+2, r=screw_r+0.1);
+            cylinder(nut_h, r=nut_r, $fn=6);
         }
         
         box([idler_screw_r+0.5+t, -large, t], [large, large, t+glass_t]);
@@ -280,3 +314,84 @@ module OUT_align_jig(){
 }
 
 translate([-150,-150,0])OUT_align_jig();
+
+module OUT_motor_spacer(){
+    motor_holder_h=38;
+    screw_l=12;
+    h=motor_holder_h;
+    
+    module corners(){
+        translate([-motor_hole_gap/2, motor_hole_gap/2, 0])children();
+        translate([-motor_hole_gap/2, -motor_hole_gap/2, 0])children();
+        translate([motor_hole_gap/2, -motor_hole_gap/2, 0])children();
+    }
+    
+    module motor_box(h){
+        sequential_hull(){
+                translate([-motor_hole_gap/2, motor_hole_gap/2, 0])cylinder(h, r=extra_r);
+                translate([-motor_hole_gap/2, -motor_hole_gap/2, 0])cylinder(h, r=extra_r);
+                translate([motor_hole_gap/2, -motor_hole_gap/2, 0])cylinder(h, r=extra_r);                    
+                //translate([motor_hole_gap/2, motor_hole_gap/2, 0])cylinder(h, r=extra_r);
+            }
+    }
+    difference(){
+        union(){
+            motor_box(5);
+            up(h-(screw_l-motor_hole_depth))motor_box(screw_l-motor_hole_depth);
+            hull(){
+                translate([-motor_hole_gap/2, motor_hole_gap/2-2*extra_r, 0])cylinder(h, r=extra_r);
+                translate([-motor_hole_gap/2, -motor_hole_gap/2+2*extra_r, 0])cylinder(h, r=extra_r);
+            }
+            hull(){
+                translate([-motor_hole_gap/2+2*extra_r, -motor_hole_gap/2, 0])cylinder(h, r=extra_r);
+                translate([motor_hole_gap/2-2*extra_r, -motor_hole_gap/2, 0])cylinder(h, r=extra_r);
+            }            
+            
+        }
+        
+        up(h-motor_bump_h-1)cylinder(large, r=motor_bump_r);
+        
+        xy_mirror(){
+            translate([motor_hole_gap/2, motor_hole_gap/2, -1]){
+                cylinder(motor_holder_h/2, r=2.2);
+                up(motor_holder_h/2)cylinder(large, r=1.6);
+            }
+        }
+    }
+    
+    corners(){
+        support_cone(motor_holder_h, extra_r, extra_r);
+        up(h-(screw_l-motor_hole_depth)-2*(extra_r-1.6))support_cone(2*(extra_r-1.6), extra_r, 1.65);
+    }
+}
+
+translate([70,0,0])OUT_motor_spacer();
+
+module OUT_side_grabber_adjuster(){
+
+    screw_r=1.55;
+    nut_r=3.3;
+    nut_h=2.3;
+    head_r=3;
+    gl=15;
+    
+    difference(){
+        union(){
+            {
+                hull(){
+                    translate([t, 0, -head_r])rotate([90,0,0])cylinder(gl, r=nut_r+1);
+                    box([0, -gl, 0], [grab_w+t, 0, 2*t+glass_t]);
+                }
+            }
+        }
+    /*    
+        translate([idler_screw_r+0.5+t, grab_l/2+eps, -head_r])rotate([90,0,0]){
+            cylinder(nut_h+2*t+2, r=screw_r+0.1);
+            cylinder(nut_h, r=nut_r, $fn=6);
+        }*/
+        
+        box([t, -large, t], [large, large, t+glass_t]);
+    }
+}
+
+translate([150,0,0])OUT_side_grabber_adjuster();
