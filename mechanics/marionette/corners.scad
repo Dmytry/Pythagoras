@@ -23,7 +23,7 @@ cable_clearance=1;
 bearing_lip=0.5;
 eps=1E-3;
 
-lower_winch_l=winch_turns*cable_r + lip+cable_clearance;
+lower_winch_l=winch_turns*cable_r*2 + lip+cable_clearance;
 upper_winch_l=winch_l-lower_winch_l-mid_winch_l;
 winching_height=upper_winch_l-t-glass_t/2;
 

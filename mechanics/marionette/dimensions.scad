@@ -40,7 +40,7 @@ motor_shaft_r=2.5;
 d_cutout_l=15;
 d_cutout_depth=0.5;
 
-cable_r=1.0;//0.5;
+cable_r=0.5;
 
 // too short:
 //winch_l=40;//motor_shaft_l;
