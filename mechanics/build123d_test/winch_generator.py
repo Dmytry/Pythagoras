@@ -25,12 +25,10 @@ def winch_path(phi_to_cable, max_cable, start_phi, d_phi, decimate, spacing, anc
     result=[]
     tangents=[]
     r_z=[(bore, z)]
-    
-    
-    #last_out_phi=-1E10
+
     decimate_cnt=0
 
-    last_out_z_phi=0
+    last_out_z_phi=-1E10
 
     while(cable<max_cable):
         phi=phi+d_phi
@@ -50,7 +48,7 @@ def winch_path(phi_to_cable, max_cable, start_phi, d_phi, decimate, spacing, anc
 
         new_point=(math.cos(phi)*r, math.sin(phi)*r, z)
         decimate_cnt=decimate_cnt-1
-        if decimate_cnt<0:
+        if decimate_cnt<=0:
             result.append(last_point)
             tangents.append((Vector(*new_point)-Vector(*last_point)).normalized())
             decimate_cnt=decimate
@@ -63,8 +61,8 @@ def winch_path(phi_to_cable, max_cable, start_phi, d_phi, decimate, spacing, anc
 
     # if last_out_phi<phi:
     #     result.append((math.cos(phi)*r, math.sin(phi)*r, z))
-    # if last_out_z_phi<phi:
-    #     r_z.append((r-shrink, z))
+    if last_out_z_phi<phi:
+        r_z.append((r-shrink, z))
 
     r_z.append((1, z))
     return result, tangents, r_z
@@ -81,7 +79,7 @@ def test_cable_fun(phi):
 
 groove_pts=[(-1, 1), (1,1), (0,0), (1, -1), (-1, -1)]
 
-pts, tangents, r_z = winch_path(test_cable_fun, 400, math.pi*2, math.pi/360, 59, 1, 100, 0, 1, 0.1)
+pts, tangents, r_z = winch_path(test_cable_fun, 400, math.pi*2, math.pi/360, 60, 1, 100, 0, 1, 0.1)
 
 n=4
 with BuildPart() as blocks:
@@ -98,7 +96,7 @@ with BuildPart() as blocks:
     with BuildSketch(Plane(origin=spiral.wires().first @ 0, z_dir=(0,1,0), x_dir=(1,0,0))) as p:
         with BuildLine() as l:
             Polyline(*groove_pts, close=True)
-            Scale(by=0.3)
+            Scale(by=0.5)
         MakeFace()
     rotated_s=spiral.wires().first.rotate(axis=Axis.Z, angle=90)
     #flat_spiral=rotated_s.project_to_shape(Face.make_rect(1000,1000,Plane.XY), direction=(0,0,1))
