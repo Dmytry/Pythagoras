@@ -317,6 +317,8 @@ ridge_fade_pts, ridge_fade_tangents=ridge_fadeout(ridge_pts[-1][0], ridge_pts[-1
 ridge_pts=ridge_pts+ridge_fade_pts
 ridge_tangents=ridge_tangents+ridge_fade_tangents
 
+ridge_pts[0]=pts[0]
+
 n=points_per_spline
 
 with BuildPart() as blocks:
