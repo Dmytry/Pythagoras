@@ -226,7 +226,11 @@ def generate_winch(f, rotations, cable_spacing=1, points_per_spline=16, splines_
     pts[0]=(pts[0][0], 0, 0)
     pts[-1]=(pts[-1][0], 0, pts[-1][2])
 
-    ridge_fade_pts, ridge_fade_tangents=ridge_fadeout(ridge_pts[-1][0], ridge_pts[-1][2], pts[-1][0], pts[-1][2], 2*math.pi, points_per_rotation)
+    bottom_circle_r=pts[0][0]
+    top_circle_pt=pts[-1]
+    top_circle_r=top_circle_pt[0]
+
+    ridge_fade_pts, ridge_fade_tangents=ridge_fadeout(ridge_pts[-1][0], ridge_pts[-1][2], top_circle_r, pts[-1][2], 2*math.pi, points_per_rotation)
 
     ridge_pts=ridge_pts+ridge_fade_pts
     ridge_tangents=ridge_tangents+ridge_fade_tangents
@@ -235,9 +239,9 @@ def generate_winch(f, rotations, cable_spacing=1, points_per_spline=16, splines_
 
     n=points_per_spline
 
-    base_circle=[Edge.make_circle(pts[0][0], start_angle=i*360/splines_per_rotation, end_angle=(i+1)*360/splines_per_rotation) for i in range(0, splines_per_rotation)]
-    top_circle_pt=pts[-1]
-    top_circle=[Edge.make_circle(top_circle_pt[0], plane=Plane.XY.offset(top_circle_pt[2]), start_angle=i*360/splines_per_rotation, end_angle=(i+1)*360/splines_per_rotation) for i in range(0, splines_per_rotation)]
+    base_circle=[Edge.make_circle(bottom_circle_r, start_angle=i*360/splines_per_rotation, end_angle=(i+1)*360/splines_per_rotation) for i in range(0, splines_per_rotation)]
+    
+    top_circle=[Edge.make_circle(top_circle_r, plane=Plane.XY.offset(top_circle_pt[2]), start_angle=i*360/splines_per_rotation, end_angle=(i+1)*360/splines_per_rotation) for i in range(0, splines_per_rotation)]
 
     edges_groove=[Edge.make_spline(pts[i-1:i+n], tangents=tangents[i-1:i+n]) for i in range(1, len(pts), n)]
     edges_ridge=[Edge.make_spline(ridge_pts[i-1:i+n], tangents=ridge_tangents[i-1:i+n]) for i in range(1, len(ridge_pts), n)]
@@ -246,11 +250,11 @@ def generate_winch(f, rotations, cable_spacing=1, points_per_spline=16, splines_
     faces_bottom_fade=[Face.make_surface_from_curves(base_circle[i], edges_ridge[i]) for i in range(0, splines_per_rotation)]
     faces_top_fade=[Face.make_surface_from_curves(edges_ridge[i+len(edges_ridge)-splines_per_rotation], top_circle[i]) for i in range(0, splines_per_rotation)]
     bottom_flat_cap=Face.make_surface(base_circle)
-    top_flat_cap=Face.make_surface(top_circle)    
+    top_flat_cap=Face.make_surface(top_circle)
 
     result_shell=Shell.make_shell(faces_up+faces_down+faces_top_fade+faces_bottom_fade+[bottom_flat_cap, top_flat_cap])
     result_solid=Solid.make_solid(result_shell)
 
-    return result_solid
+    return result_solid, bottom_circle_r, top_circle_r, top_circle_pt[2]
 
 #show(faces_up, faces_down, faces_bottom_fade, bottom_flat_cap, top_flat_cap, faces_top_fade, colors=['red', 'green', 'blue', 'yellow', 'yellow', 'blue'])
