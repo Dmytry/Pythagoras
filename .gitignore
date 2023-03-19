@@ -1,3 +1,7 @@
 /tests
 /mechanics/generated
 /generated
+/*.stl
+*.gcode
+/*.svg
+__pycache__

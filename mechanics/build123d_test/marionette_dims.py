@@ -63,13 +63,33 @@ tiny_bearing_h=3
 
 steel_shaft_r=2
 
-idler_screw_r=3.8/2
-idler_screw_head_r=7.5/2
-idler_r=7
-idler_h=6
-idler_ir=2
-# radius where rope wraps
-idler_rr=4.75
+# # legacy idler
+# idler_screw_r=3.8/2
+# idler_screw_head_r=7.5/2
+# idler_r=7
+# idler_h=6
+# idler_ir=2
+# # radius where rope wraps
+# idler_rr=4.75
+
+
+class idler:
+    screw_r=3.8/2
+    screw_head_r=7.5/2
+    r=7
+    h=6
+    ir=2
+    # radius where rope wraps
+    rr=4.75
+
+class small_idler:
+    screw_r=3/2
+    screw_head_r=6/2
+    r=6
+    h=4
+    ir=2
+    # radius where rope wraps
+    rr=9.8/2
 
 diagonal_length=math.hypot(glass_w-movement_margin*2, glass_h-movement_margin*2)
 winch_turns=diagonal_length/mm_per_revolution
@@ -77,9 +97,15 @@ upper_cable_length=math.hypot(glass_w-movement_margin, glass_h-movement_margin) 
 
 rail_size=20
 rail_mount_screw_r=2
-rail_mount_screw_head_r=3.5
-rail_mount_screw_l=12
+rail_mount_screw_head_r=3.8
+rail_mount_screw_head_h=4
+# Ran out of m4x12 screws!
+#rail_mount_screw_l=12
+rail_mount_screw_l=10
 rail_depth=6
+
+
+rope_and_screw_hole_r=0.9
 
 #echo("The winch will have", winch_turns, "turns")
 #echo("Upper cable length is", upper_cable_length)

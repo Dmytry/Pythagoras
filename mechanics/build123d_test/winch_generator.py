@@ -170,7 +170,9 @@ def winch_path(spiral_fun, max_a, a_count, spacing, expand_r, z_offset):
     tangents=[]
 
     def point_calc(t):
-        fade=jnp.min(jnp.array(((t-t_offset)/jnp.pi, 1.0)))
+        #fade=jnp.min(jnp.array(((t-t_offset)/jnp.pi, 1.0)))
+        # no longer do fades
+        fade=1
         #z=a*z_per_a
         z=t*z_per_a+zstart
         pt=spiral_fun(t)
@@ -191,7 +193,7 @@ def winch_path(spiral_fun, max_a, a_count, spacing, expand_r, z_offset):
 
     return result, tangents
 
-def ridge_fadeout(start_r, start_z, end_r, end_z, max_phi, count):
+def ridge_fadeout(start_r, start_z, end_r, end_z, max_phi, count, start_i=1):
     last_point=(start_r, 0, start_z)
     decimate_cnt=0
     result=[]
@@ -205,7 +207,7 @@ def ridge_fadeout(start_r, start_z, end_r, end_z, max_phi, count):
     a_to_dpt=jit(jax.jacfwd(a_to_pt))
     #pt_dpt=jit(jax.value_and_grad(a_to_pt))
 
-    for i in range(1, count+1):
+    for i in range(start_i, count+start_i):
         a=i/count
         new_pt=a_to_pt(a)
         dp=a_to_dpt(a)
@@ -227,6 +229,9 @@ def generate_winch(f, rotations, cable_spacing=1, points_per_spline=16, splines_
     pts[-1]=(pts[-1][0], 0, pts[-1][2])
 
     bottom_circle_r=pts[0][0]
+
+    bottom_circle_z=ridge_pts[0][2]
+
     top_circle_pt=pts[-1]
     top_circle_r=top_circle_pt[0]
 
@@ -235,11 +240,20 @@ def generate_winch(f, rotations, cable_spacing=1, points_per_spline=16, splines_
     ridge_pts=ridge_pts+ridge_fade_pts
     ridge_tangents=ridge_tangents+ridge_fade_tangents
 
-    ridge_pts[0]=pts[0]
+    #ridge_pts[0]=pts[0]
+
+    bottom_fade_pts, bottom_fade_tangents=ridge_fadeout(bottom_circle_r, bottom_circle_z, pts[0][0], pts[0][2], 2*math.pi, points_per_rotation, 0)
+
+    bottom_ridge_fade_pts, bottom_ridge_fade_tangents=ridge_fadeout(bottom_circle_r, bottom_circle_z, ridge_pts[0][0], ridge_pts[0][2], 2*math.pi, points_per_rotation, 0)
+
+    pts=bottom_fade_pts+pts
+    tangents=bottom_fade_tangents+tangents
+    ridge_pts=bottom_ridge_fade_pts+ridge_pts
+    ridge_tangents=bottom_ridge_fade_tangents+ridge_tangents
 
     n=points_per_spline
 
-    base_circle=[Edge.make_circle(bottom_circle_r, start_angle=i*360/splines_per_rotation, end_angle=(i+1)*360/splines_per_rotation) for i in range(0, splines_per_rotation)]
+    base_circle=[Edge.make_circle(bottom_circle_r, plane=Plane.XY.offset(ridge_pts[0][2]), start_angle=i*360/splines_per_rotation, end_angle=(i+1)*360/splines_per_rotation) for i in range(0, splines_per_rotation)]
     
     top_circle=[Edge.make_circle(top_circle_r, plane=Plane.XY.offset(top_circle_pt[2]), start_angle=i*360/splines_per_rotation, end_angle=(i+1)*360/splines_per_rotation) for i in range(0, splines_per_rotation)]
 
@@ -249,12 +263,24 @@ def generate_winch(f, rotations, cable_spacing=1, points_per_spline=16, splines_
     faces_down=[Face.make_surface_from_curves(edges_ridge[i], edges_groove[i]) for i in range(0, len(edges_groove)) ]
     faces_bottom_fade=[Face.make_surface_from_curves(base_circle[i], edges_ridge[i]) for i in range(0, splines_per_rotation)]
     faces_top_fade=[Face.make_surface_from_curves(edges_ridge[i+len(edges_ridge)-splines_per_rotation], top_circle[i]) for i in range(0, splines_per_rotation)]
+
+    #e1=faces_down[0].edges()[3]
+    
+    #bottom_triangle_cap=[faces_down[0].edges()[3], faces_bottom_fade[0].edges()[3], Edge.make_line() ]
+
     bottom_flat_cap=Face.make_surface(base_circle)
     top_flat_cap=Face.make_surface(top_circle)
 
     result_shell=Shell.make_shell(faces_up+faces_down+faces_top_fade+faces_bottom_fade+[bottom_flat_cap, top_flat_cap])
     result_solid=Solid.make_solid(result_shell)
 
+    if __name__ == '__main__':
+        from cq_vscode import show
+        show(faces_up, faces_down, faces_bottom_fade, bottom_flat_cap, top_flat_cap, faces_top_fade, colors=['red', 'green', 'blue', 'yellow', 'yellow', 'blue'])
+        valid=result_solid.is_valid()
+        print(f'Solid is valid: {valid}')
+
     return result_solid, bottom_circle_r, top_circle_r, top_circle_pt[2]
 
-#show(faces_up, faces_down, faces_bottom_fade, bottom_flat_cap, top_flat_cap, faces_top_fade, colors=['red', 'green', 'blue', 'yellow', 'yellow', 'blue'])
+if __name__ == '__main__':
+    generate_winch(test_cable_fun, 5)
