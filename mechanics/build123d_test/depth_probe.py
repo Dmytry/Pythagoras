@@ -64,7 +64,9 @@ def make_probe_base():
     sketch-=hole @ Pos(-hole_spacing/2, probe_base_h - margin - adjust/2)
     sketch-=hole @ Pos(+hole_spacing/2, probe_base_h - margin - adjust/2)
     result=extrude(sketch, t)
-    result+=Box(t, probe_base_h, magnet_base_width, align=(Align.MIN, Align.MIN, Align.MIN))@Pos(w/2, 0, 0)
+    #result+=Box(t, probe_base_h, magnet_base_width, align=(Align.MIN, Align.MIN, Align.MIN))@Pos(w/2, 0, 0)
+    result+=Box(t, probe_base_h, magnet_base_width, align=(Align.MAX, Align.MIN, Align.MIN))@Pos(-w/2, 0, 0)
+
     bottom=Box(w, t, magnet_base_width, align=(Align.MIN, Align.MIN, Align.MIN))@Pos(-w/2, 0, 0)
     result+=bottom
 
@@ -112,12 +114,13 @@ def make_probe():
 
     return result
 
+dock_l=65
+dock_h=55
 
 def make_dock():
     global vis_aux  
-    dock_l=65
-    dock_h=55
-    probe_l=37
+    
+    probe_l=30
     clearance=1.5
     probe_w=2*(magnet_r+1+clearance)
 
@@ -189,5 +192,5 @@ d.export_stl("dock.stl")
 
 
 show(pb, p@Pos(-w/2, -3, magnet_base_width/2-3.5),  vis_aux@Pos(-w/2, -3, magnet_base_width/2-3.5), 
-    d@Pos(0,-80,0),
+    d@(Pos(dock_l-w/2, -70, rail_w/2+magnet_base_width/2)*Rot(0, -90, 0)),
     axes=True, axes0=True)
