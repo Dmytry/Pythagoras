@@ -10,3 +10,10 @@
 [submodule "submodules/Alg123d"]
 	path = submodules/Alg123d
 	url = https://github.com/bernhard-42/Alg123d.git
+[submodule "submodules/--help"]
+	path = submodules/--help
+	url = https://github.com/gumyr/build123d.git
+[submodule "submodules/build123d"]
+	path = submodules/build123d
+	url = https://github.com/gumyr/build123d.git
+	branch = algebra

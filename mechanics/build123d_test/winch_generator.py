@@ -274,6 +274,11 @@ def generate_winch(f, rotations, cable_spacing=1, points_per_spline=16, splines_
     result_shell=Shell.make_shell(faces_up+faces_down+faces_top_fade+faces_bottom_fade+[bottom_flat_cap, top_flat_cap])
     result_solid=Solid.make_solid(result_shell)
 
+    if result_solid.wrapped.IsNull():
+        print(f'Got null solid')
+    valid=result_solid.is_valid()
+    print(f'Generated winch solid is valid: {valid}')
+
     if __name__ == '__main__':
         from cq_vscode import show
         show(faces_up, faces_down, faces_bottom_fade, bottom_flat_cap, top_flat_cap, faces_top_fade, colors=['red', 'green', 'blue', 'yellow', 'yellow', 'blue'])

@@ -1,4 +1,5 @@
-from alg123d import *
+from build123d import *
+import build123d
 
 from cq_vscode import show, show_object, set_port
 import winch_generator
@@ -50,16 +51,21 @@ class MagicWinch():
   
         winch_shape, bottom_r, top_r, height = winch_generator.generate_winch(angle_to_cable, winch_turns, cable_spacing)
 
-        height=winch_turns*cable_spacing    
+        height=winch_turns*cable_spacing
         bottom_shoulder=3
         anchor_w=5
         anchor_h=1
         top_winch=6
         top_shoulder=3
 
-        cl=0.5
+        cl=0.5        
 
-        result=AlgCompound(winch_shape)@Pos(0, 0, bottom_shoulder)
+        #show_object(winch_shape)
+
+        with BuildPart() as bp:
+            Add(winch_shape)
+
+        result=Pos(0, 0, bottom_shoulder) * bp.part
 
         # Slight expand for the 3D printer
         ir=dims.steel_shaft_r+0.15
@@ -81,16 +87,18 @@ class MagicWinch():
             (ir, 0)
             ])
         mid_anchor_h=(pts[6][1]+pts[7][1])/2
-        s=Polyline(pts, close=True)
-        result+=revolve(make_face(s)@Plane.XZ, axis=Axis.Z)
+        s=Polyline(*pts, close=True)
+        face=Plane.XZ * make_face(s)
+        revolved_face=revolve(face, axis=Axis.Z)
+        result+=revolved_face
         
         result-=Cylinder(radius=ir, height=large)
         
         # Hole for tie-off screw
-        result-=Cylinder(radius=0.8, height=1000)@(Pos(0,0,mid_anchor_h)*Rot(0,90,0))
-        result-=Cylinder(radius=0.8, height=1000)@(Pos(0,0,mid_anchor_h)*Rot(90,0,0))
+        result-=Pos(0,0,mid_anchor_h) * Rot(0,90,0) * Cylinder(radius=0.8, height=1000)
+        result-=Pos(0,0,mid_anchor_h) * Rot(90,0,0) * Cylinder(radius=0.8, height=1000)
 
-        result-=Cylinder(radius=self.align_pin_r, height=large, align=ccb)@Pos(self.align_pin_offset, 0, mid_anchor_h)
+        result-=Pos(self.align_pin_offset, 0, mid_anchor_h) * Cylinder(radius=self.align_pin_r, height=large, align=ccb)
 
 
         #result.fix()
@@ -101,8 +109,7 @@ class MagicWinch():
         print(f'Top r:{self.radius} Total height: {self.height}')
 
 winch=MagicWinch()
-(winch.object@(Pos(0,0,winch.height)*Rot(180,0,0))).export_stl(f"magic_winch_{pulley_to_pulley}.stl")
-
+(Pos(0,0,winch.height)*Rot(180,0,0) * winch.object).export_stl(f"magic_winch_{pulley_to_pulley}.stl")
 
 # TODO: hole for alignment pin
 def winch_holder(r, h):
@@ -120,20 +127,23 @@ def winch_holder(r, h):
 
     standoff=r+2
 
-    base_rect = AlgCompound(Rectangle(w, y, align=(Align.CENTER, Align.MIN)))
+    base_rect = Rectangle(w, y, align=(Align.CENTER, Align.MIN))
 
     s = base_rect+Rectangle(2*bearing_holder_r, standoff, align=(Align.CENTER, Align.MIN))
-    s += Circle(bearing_holder_r)@Pos(0, standoff)
+    s += Pos(0, standoff) * Circle(bearing_holder_r)
 
-    bottom_holder=AlgCompound(extrude(s, t))
+    #show_object(s)
 
-    base_rect_cl=base_rect-Circle(r)@Pos(0, standoff)
+    bottom_holder = extrude(s, t)
 
-    result = bottom_holder + bottom_holder@Pos(0,0,total_h-t) + extrude(base_rect_cl, total_h)
-
-    result-=Cylinder(dims.he_bearing_or, large)@Pos(0,standoff)
-
+    base_rect_cl=base_rect - Pos(0, standoff) * Circle(r)
     
+    #show_object(bottom_holder)
+
+    result = bottom_holder + Pos(0,0,total_h-t) * bottom_holder + extrude(base_rect_cl, total_h, dir=(0,0,1))
+    
+
+    result-=Pos(0,standoff) * Cylinder(dims.he_bearing_or, large)
 
     bolt_hole = Cylinder(radius=dims.rail_mount_screw_r, height=large) + Cylinder(
         radius=dims.rail_mount_screw_head_r,
@@ -141,17 +151,20 @@ def winch_holder(r, h):
         align=(Align.CENTER, Align.CENTER, Align.MIN),
     )
 
-    hole_pos=Pos(r+dims.rail_mount_screw_head_r, dims.rail_mount_screw_l + 2 - dims.rail_depth, dims.rail_size/2) * Rot(-90,0,0)
+    hole_pos=Pos(r+dims.rail_mount_screw_head_r, dims.rail_mount_screw_l + 2 - dims.rail_depth, total_h/2) * Rot(-90,0,0)
 
-    bh=bolt_hole@hole_pos
-    bh+=mirror(bh, Plane.YZ)
-    bh+=mirror(bh, Plane((0,0,total_h/2)) )
-    result-=bh   
+    bh=hole_pos * bolt_hole
+    bh+=mirror(bh, about=Plane.YZ)
+    bh2=bh+Pos(0,0,-dims.rail_size/2)*bh
+    bh2+=Pos(0,0,dims.rail_size/2)*bh
+    result-=bh2
 
-    return result@Pos(0, -standoff, 0)
+    return Pos(0, -standoff, 0) * result
     
-wh=winch_holder(winch.radius, winch.height)
+wh=winch_holder(float(winch.radius), float(winch.height))
+
+(Rot(90,0,0) * wh).export_stl("magic_winch_holder.stl")
 
 if __name__ == '__main__':
-    (wh@Rot(90,0,0)).export_stl("magic_winch_holder.stl")
-    show(winch.object@Pos(0,0,4.5), wh)
+    
+    show(Pos(0,0,4.5) * winch.object, wh)
