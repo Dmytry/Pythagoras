@@ -7,9 +7,6 @@
 [submodule "mechanics/BOSL2"]
 	path = mechanics/BOSL2
 	url = https://github.com/revarbat/BOSL2.git
-[submodule "submodules/Alg123d"]
-	path = submodules/Alg123d
-	url = https://github.com/bernhard-42/Alg123d.git
 [submodule "submodules/--help"]
 	path = submodules/--help
 	url = https://github.com/gumyr/build123d.git

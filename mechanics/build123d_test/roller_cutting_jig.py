@@ -1,4 +1,5 @@
-from alg123d import *
+#from alg123d import *
+from build123d import *
 from cq_vscode import show
 
 large = 1000
@@ -40,15 +41,15 @@ def make_cutter_jig():
 
     roller = Cylinder(roller_or + cl * 2, roller_h + cl * 2)
     # Little pips to keep roller from rubbing on the sides
-    roller -= Cylinder(roller_screw_r + 1, 1) @ Pos(0, 0, roller_h / 2 + cl)
-    roller -= Cylinder(roller_screw_r + 1, 1) @ Pos(0, 0, -(roller_h / 2 + cl))
+    roller -= Pos(0, 0, roller_h / 2 + cl) * Cylinder(roller_screw_r + 1, 1)
+    roller -= Pos(0, 0, -(roller_h / 2 + cl)) * Cylinder(roller_screw_r + 1, 1)
     roller += Cylinder(roller_screw_r, large)
 
-    box -= roller @ (Pos(x, 0, z) * Rot(90, 0, 0))
-    box -= roller @ (Pos(-x, 0, z) * Rot(90, 0, 0))
+    box -= Pos(x, 0, z) * Rot(90, 0, 0) * roller
+    box -= Pos(-x, 0, z) * Rot(90, 0, 0) * roller
 
-    box -= Cylinder(screw_r, large) @ (Pos(0, 0, h / 2) * Rot(0, 90, 0))
-    box -= Cylinder(screw_r, large) @ (Pos(0, 0, h / 2) * Rot(90, 0, 0))
+    box -= Pos(0, 0, h / 2) * Rot(0, 90, 0) * Cylinder(screw_r, large)
+    box -= Pos(0, 0, h / 2) * Rot(90, 0, 0) * Cylinder(screw_r, large)
 
     return box
 
@@ -75,8 +76,8 @@ def make_cutter_jig_roller():
         (outer_r, 0),
     ]
     complete_profile(pts, roller_h)
-    s = Polyline(pts, close=True)
-    return revolve(make_face(s) @ Plane.XZ, axis=Axis.Z)
+    s = Polyline(*pts, close=True)
+    return revolve(Plane.XZ * make_face(s), axis=Axis.Z)
 
 
 cutter_jig = make_cutter_jig()
@@ -87,14 +88,14 @@ roller.export_stl("cutter_jig_roller.stl")
 if __name__ == "__main__":
     show(
         cutter_jig,
-        roller @ (Pos(x, 0, z) * Rot(90, 0, 0) * Pos(0, 0, -roller_h / 2)),
-        roller @ (Pos(-x, 0, z) * Rot(90, 0, 0) * Pos(0, 0, -roller_h / 2)),
+        Pos(x, 0, z) * Rot(90, 0, 0) * Pos(0, 0, -roller_h / 2) * roller,
+        Pos(-x, 0, z) * Rot(90, 0, 0) * Pos(0, 0, -roller_h / 2) * roller,
     )
 
 combined = (
     cutter_jig
-    + roller @ (Pos(x, 0, z) * Rot(90, 0, 0) * Pos(0, 0, -roller_h / 2))
-    + roller @ (Pos(-x, 0, z) * Rot(90, 0, 0) * Pos(0, 0, -roller_h / 2))
+    + Pos(x, 0, z) * Rot(90, 0, 0) * Pos(0, 0, -roller_h / 2) * roller
+    + Pos(-x, 0, z) * Rot(90, 0, 0) * Pos(0, 0, -roller_h / 2) * roller
 )
 
 # combined.export_svg('cutter_jig2.svg',
