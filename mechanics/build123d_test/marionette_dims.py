@@ -26,6 +26,7 @@ lower_winch_r=winch_r/winch_ratio
 
 motor_hole_gap=31
 motor_hole_r=1.65
+motor_screw_r=1.65
 motor_screw_head_r=3.5
 motor_screw_l=16
 

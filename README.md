@@ -17,7 +17,7 @@ While I hadn't yet gotten Marionette to print, it has been a lot easier to build
 
 ## Cable based straight mechanism Z drive:
 
-https://youtu.be/4MuK-TnRx-g
+https://youtu.be/cEeoZqRsgvY
 
 The source files for this are in mechanics/build123d_test . You need to unstall the right version of build123d (inside your python venv) via
 ```

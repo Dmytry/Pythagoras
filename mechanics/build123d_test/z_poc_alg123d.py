@@ -1,7 +1,4 @@
 from build123d import *
-
-# .venv/lib/python3.10/site-packages/build123d-0.1.dev560+g99bb3a5.dist-info
-#from alg123d import *
 from build123d import gp_Quaternion, gp_Trsf, TopTools_ListOfShape, BRepAlgoAPI_Cut
 from build123d.topology import Shape
 
