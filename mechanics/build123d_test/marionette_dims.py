@@ -100,9 +100,10 @@ rail_size=20
 rail_mount_screw_r=2
 rail_mount_screw_head_r=3.8
 rail_mount_screw_head_h=4
+# Bought a lot of m4x12 screws again.
+rail_mount_screw_l=12
 # Ran out of m4x12 screws!
-#rail_mount_screw_l=12
-rail_mount_screw_l=10
+#rail_mount_screw_l=10
 rail_depth=6
 
 
