@@ -346,9 +346,12 @@ pb = make_probe_base()
 p = make_probe()
 
 pb.export_stl("kin_probe_base.stl")
+pb.export_step("kin_probe_base.stp")
 p.export_stl("kin_probe.stl")
+p.export_step("kin_probe.stp")
 
 d=make_dock()
 d.export_stl("kin_dock.stl")
+d.export_step("kin_dock.stp")
 
 show(pb, Pos(0, 50, 0) * p, Pos(50,0,0)*d, axes=True, axes0=True)

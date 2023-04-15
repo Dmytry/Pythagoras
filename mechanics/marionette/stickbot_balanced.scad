@@ -29,6 +29,13 @@ module rep_180(){
     rotate([0,0,180])children();
 }
 
+module rep_90(){
+    rep_180(){
+        children();
+        rotate([0,0,90])children();
+    }
+}
+
 arm_step=4;
 arm_midline_h=arm_step*5;
 
@@ -67,14 +74,25 @@ module combined_base(){
                     up(cl)cylinder((idler_rr*2-idler_h/2)-cl, r1=idler_r, r2=idler_rr);
                     up((idler_rr*2-idler_h/2))cylinder((idler_rr*2-idler_h/2), r1=idler_rr, r2=idler_r);
                     up((idler_rr*2-idler_h/2)*2)cylinder(total_height-(height+idler_h + (idler_rr*2-idler_h/2)*2), r=idler_r);
-                }                
-                box([-idler_rr, 0, 0], [idler_rr, idler_r*2, total_height/* height+idler_h+1+(idler_rr*2-idler_h/2)*2 */ ]);
+                    
+                    
+                }
+                // guitar peg                
+                translate([0, idler_r*2, total_height-guitar_tuner_peg_hole_l+guitar_tuner_windings_w/2])cylinder(guitar_tuner_peg_hole_l-guitar_tuner_windings_w/2, r=guitar_tuner_peg_r+t);
+                
+                box([-idler_rr, 0, 0], [idler_rr, idler_r*2, total_height/* height+idler_h+1+(idler_rr*2-idler_h/2)*2 */ ]);             
+                
             }
             up(height-cl){
                 cylinder(idler_h+cl*2, r=idler_r+1);
             }
             translate([0, idler_r*1.5, height+idler_h+(idler_rr*2-idler_h/2)])rotate([0,90,0])cylinder(large, r=rope_and_screw_hole_r, center=true);
+            
+            
+            
+            
             translate([0, idler_r*1, height+idler_h+(idler_rr*2-idler_h/2)])rotate([0,90,0])cylinder(large, r=rope_and_screw_hole_r, center=true);
+            
             //up(30)cylinder(large, r=idler_screw_head_r);
         }
         /*
@@ -88,9 +106,8 @@ module combined_base(){
     
     difference(){
         union(){
-            rep_180(){
-                translate([w/2, -h/2, 0])corner_holder();
-                translate([w/2, h/2, 0])rotate([0,0,90])corner_holder();
+            rep_90(){
+                translate([w/2, -h/2, 0])corner_holder();                
             }
             
             xy_mirror(){
@@ -106,9 +123,25 @@ module combined_base(){
         }
         
         // holes for idler screws
-        xy_mirror()translate([w/2, h/2, 0]){
+        rep_90()translate([w/2, -h/2, 0]){
             cylinder(large, r=idler_screw_r);
             up(height+idler_h+10)cylinder(large, r=idler_screw_head_r);
+            
+            fudge=0.05;
+            
+            // guitar tuner peg hole
+            extra=(total_height-guitar_tuner_peg_l) - (height+idler_h)+fudge;
+            
+            translate([0, idler_r*2, height+idler_h-fudge]){
+                cylinder(large, r=guitar_tuner_peg_r);
+                wind_cutout_h=guitar_tuner_peg_l-guitar_tuner_peg_hole_l+guitar_tuner_windings_w/2;
+                //cylinder(2+wind_cutout_h, r=guitar_tuner_peg_r+t);
+                box([-guitar_tuner_peg_r-t, -guitar_tuner_peg_r-t, 0], [guitar_tuner_peg_r+t, guitar_tuner_peg_r+t, extra+wind_cutout_h]);
+                
+                translate([0, guitar_tuner_peg_to_hole_1, 0])#cylinder(large, r=guitar_tuner_screw_r);
+                translate([0, guitar_tuner_peg_to_hole_2, 0])#cylinder(large, r=guitar_tuner_screw_r);
+            }
+            
         }
         
         // Centring hole

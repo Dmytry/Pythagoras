@@ -70,6 +70,18 @@ idler_ir=2;
 // radius where rope wraps
 idler_rr=4.75;
 
+guitar_tuner_peg_r=3.15;
+guitar_tuner_peg_l=27;
+guitar_tuner_peg_hole_l=22.5;
+guitar_tuner_windings_w=8;
+
+// Two inconveniently located mounting holes on the tuner.
+guitar_tuner_peg_to_hole_1=norm([13/2, (23/2) - 3]);
+guitar_tuner_peg_to_hole_2=norm([13/2, (23/2) + 3]);
+echo("peg to hole 1 ", guitar_tuner_peg_to_hole_1);
+echo("peg to hole 2 ", guitar_tuner_peg_to_hole_2);
+guitar_tuner_screw_r=0.9;
+
 
 diagonal_length=norm([glass_w-movement_margin*2, glass_h-movement_margin*2]);
 winch_turns=diagonal_length/mm_per_revolution;
